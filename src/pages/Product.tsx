@@ -23,7 +23,7 @@ export default function ProductPage() {
     setLoading(true);
     supabase
       .from("products")
-      .select("*")
+      .select("*, product_images(image_url, display_order)")
       .eq("id", id)
       .maybeSingle()
       .then(({ data }) => {
