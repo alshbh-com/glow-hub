@@ -3,7 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { ProductCard } from "@/components/ProductCard";
-import type { Product, Category } from "@/lib/types";
+import { mapRowToProduct, mapRowToCategory, type Product, type Category } from "@/lib/types";
 
 export default function Shop() {
   const { slug } = useParams();
@@ -15,10 +15,10 @@ export default function Shop() {
   useEffect(() => {
     supabase
       .from("categories")
-      .select("id, name_ar, name_en, slug, image_url")
+      .select("*")
       .eq("is_active", true)
       .order("display_order")
-      .then(({ data }) => data && setCategories(data));
+      .then(({ data }) => data && setCategories((data as any[]).map(mapRowToCategory)));
   }, []);
 
   useEffect(() => {
@@ -26,11 +26,10 @@ export default function Shop() {
     let q = supabase
       .from("products")
       .select("*")
-      .eq("is_active", true)
       .order("created_at", { ascending: false });
     if (slug && activeCat) q = q.eq("category_id", activeCat.id);
     q.then(({ data }) => {
-      setProducts((data ?? []) as unknown as Product[]);
+      setProducts(((data as any[]) ?? []).map(mapRowToProduct));
       setLoading(false);
     });
   }, [slug, activeCat]);

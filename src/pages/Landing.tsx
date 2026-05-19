@@ -6,16 +6,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useCart } from "@/contexts/CartContext";
 import { ProductCard } from "@/components/ProductCard";
 import WhatsAppButton from "@/components/WhatsAppButton";
-import type { Product } from "@/lib/types";
+import { mapRowToProduct, mapRowToCategory, type Product, type Category } from "@/lib/types";
 import heroImage from "@/assets/hero.jpg";
-
-type Category = {
-  id: string;
-  name_ar: string;
-  name_en: string;
-  slug: string;
-  image_url: string | null;
-};
 
 const fadeUp = {
   initial: { opacity: 0, y: 30 },
@@ -33,8 +25,18 @@ export default function Landing() {
   const { count } = useCart();
 
   useEffect(() => {
-    supabase.from("categories").select("id, name_ar, name_en, slug, image_url").eq("is_active", true).order("display_order").then(({ data }) => data && setCategories(data));
-    supabase.from("products").select("*").eq("is_active", true).order("created_at", { ascending: false }).limit(8).then(({ data }) => data && setProducts(data as unknown as Product[]));
+    supabase
+      .from("categories")
+      .select("*")
+      .eq("is_active", true)
+      .order("display_order")
+      .then(({ data }) => data && setCategories((data as any[]).map(mapRowToCategory)));
+    supabase
+      .from("products")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(8)
+      .then(({ data }) => data && setProducts((data as any[]).map(mapRowToProduct)));
   }, []);
 
   useEffect(() => {

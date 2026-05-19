@@ -4,25 +4,29 @@ import { ChevronLeft, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useCart } from "@/contexts/CartContext";
-import type { Governorate } from "@/lib/types";
+type Gov = { id: string; name: string; shipping_cost: number };
 
 export default function Checkout() {
   const navigate = useNavigate();
   const { items, subtotal, clear } = useCart();
-  const [govs, setGovs] = useState<Governorate[]>([]);
+  const [govs, setGovs] = useState<Gov[]>([]);
   const [govId, setGovId] = useState<string>("");
   const [form, setForm] = useState({ name: "", phone: "", address: "", notes: "" });
   const [submitting, setSubmitting] = useState(false);
-  const [orderNumber, setOrderNumber] = useState<string | null>(null);
+  const [orderNumber, setOrderNumber] = useState<number | null>(null);
 
   useEffect(() => {
     supabase
       .from("governorates")
-      .select("id, name_ar, name_en, shipping_cost")
+      .select("id, name, shipping_cost")
       .eq("is_active", true)
       .order("display_order")
       .then(({ data }) => {
-        const list = (data ?? []) as unknown as Governorate[];
+        const list = ((data as any[]) ?? []).map((g) => ({
+          id: g.id,
+          name: g.name,
+          shipping_cost: Number(g.shipping_cost ?? 0),
+        }));
         setGovs(list);
         if (list[0]) setGovId(list[0].id);
       });
@@ -48,37 +52,65 @@ export default function Checkout() {
     if (!/^01[0-2,5]\d{8}$/.test(form.phone.trim())) return toast.error("رقم تليفون غير صحيح");
 
     setSubmitting(true);
-    const { data, error } = await supabase
+
+    // 1) Create / insert customer
+    const { data: customer, error: custErr } = await (supabase as any)
+      .from("customers")
+      .insert({
+        name: form.name.trim(),
+        phone: form.phone.trim(),
+        address: form.address.trim(),
+        governorate: selectedGov.name,
+      })
+      .select("id")
+      .single();
+
+    if (custErr || !customer) {
+      setSubmitting(false);
+      toast.error("حصلت مشكلة في حفظ بياناتك، حاولي تاني");
+      return;
+    }
+
+    // 2) Create order
+    const orderDetails = items
+      .map((i) => `${i.name} × ${i.qty}${i.shade ? ` (${i.shade})` : ""}${i.size ? ` [${i.size}]` : ""}`)
+      .join("\n");
+
+    const { data: order, error: orderErr } = await (supabase as any)
       .from("orders")
       .insert({
-        customer_name: form.name.trim(),
-        customer_phone: form.phone.trim(),
-        customer_address: form.address.trim(),
+        customer_id: customer.id,
         governorate_id: selectedGov.id,
-        governorate_name: selectedGov.name_ar,
-        items: items.map((i) => ({
-          product_id: i.product_id,
-          name: i.name,
-          price: i.price,
-          qty: i.qty,
-          shade: i.shade ?? null,
-          size: i.size ?? null,
-          image: i.image,
-        })),
-        subtotal,
+        total_amount: total,
         shipping_cost: shipping,
-        total,
+        status: "pending",
+        order_details: orderDetails,
         notes: form.notes.trim() || null,
       })
       .select("order_number")
       .single();
-    setSubmitting(false);
 
-    if (error || !data) {
+    if (orderErr || !order) {
+      setSubmitting(false);
       toast.error("حصلت مشكلة، حاولي تاني");
       return;
     }
-    setOrderNumber(data.order_number);
+
+    // 3) Insert order items (best-effort)
+    await (supabase as any).from("order_items").insert(
+      items.map((i) => ({
+        order_id: (order as any).id ?? undefined,
+        product_id: i.product_id,
+        quantity: i.qty,
+        price: i.price,
+        color: i.shade ?? null,
+        size: i.size ?? null,
+        product_details: i.name,
+      })),
+    );
+
+    setSubmitting(false);
+    setOrderNumber(Number(order.order_number));
     clear();
   };
 
@@ -119,7 +151,7 @@ export default function Checkout() {
               <div>
                 <label className="text-xs tracking-[0.2em] uppercase text-muted-foreground mb-2 block">المحافظة</label>
                 <select value={govId} onChange={(e) => setGovId(e.target.value)} className="w-full bg-input px-4 py-3 focus:outline-none focus:ring-1 focus:ring-accent">
-                  {govs.map((g) => <option key={g.id} value={g.id}>{g.name_ar} — شحن {g.shipping_cost} ج.م</option>)}
+                  {govs.map((g) => <option key={g.id} value={g.id}>{g.name} — شحن {g.shipping_cost} ج.م</option>)}
                 </select>
               </div>
               <Field label="العنوان بالتفصيل" value={form.address} onChange={(v) => setForm({ ...form, address: v })} multiline />
