@@ -27,6 +27,33 @@ const STATUS_MAP: Record<Order["status"], { label: string; icon: typeof Clock; c
 };
 const STEPS: Order["status"][] = ["new", "processing", "shipped", "delivered"];
 
+function mapStatus(s: string | null | undefined): Order["status"] {
+  switch (s) {
+    case "new":
+    case "pending":
+      return "new";
+    case "processing":
+    case "ready":
+    case "picked_up":
+    case "postponed":
+      return "processing";
+    case "shipped":
+    case "out_for_delivery":
+      return "shipped";
+    case "delivered":
+    case "delivered_with_modification":
+      return "delivered";
+    case "cancelled":
+    case "returned":
+    case "return_no_shipping":
+    case "failed":
+    case "agent_deleted":
+      return "cancelled";
+    default:
+      return "new";
+  }
+}
+
 export default function TrackOrder() {
   const { orderNumber } = useParams();
   const navigate = useNavigate();
