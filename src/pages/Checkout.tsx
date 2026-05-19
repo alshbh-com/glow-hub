@@ -4,25 +4,29 @@ import { ChevronLeft, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useCart } from "@/contexts/CartContext";
-import type { Governorate } from "@/lib/types";
+type Gov = { id: string; name: string; shipping_cost: number };
 
 export default function Checkout() {
   const navigate = useNavigate();
   const { items, subtotal, clear } = useCart();
-  const [govs, setGovs] = useState<Governorate[]>([]);
+  const [govs, setGovs] = useState<Gov[]>([]);
   const [govId, setGovId] = useState<string>("");
   const [form, setForm] = useState({ name: "", phone: "", address: "", notes: "" });
   const [submitting, setSubmitting] = useState(false);
-  const [orderNumber, setOrderNumber] = useState<string | null>(null);
+  const [orderNumber, setOrderNumber] = useState<number | null>(null);
 
   useEffect(() => {
     supabase
       .from("governorates")
-      .select("id, name_ar, name_en, shipping_cost")
+      .select("id, name, shipping_cost")
       .eq("is_active", true)
       .order("display_order")
       .then(({ data }) => {
-        const list = (data ?? []) as unknown as Governorate[];
+        const list = ((data as any[]) ?? []).map((g) => ({
+          id: g.id,
+          name: g.name,
+          shipping_cost: Number(g.shipping_cost ?? 0),
+        }));
         setGovs(list);
         if (list[0]) setGovId(list[0].id);
       });
