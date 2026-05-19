@@ -65,6 +65,7 @@ export default function Layout({ children }: { children: ReactNode }) {
       )}
 
       <main className="flex-1 pt-20">{children}</main>
+      <WhatsAppButton />
 
       <footer className="bg-background border-t border-border mt-20">
         <div className="max-w-7xl mx-auto px-6 md:px-10 py-12">
