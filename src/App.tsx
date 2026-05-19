@@ -14,6 +14,7 @@ import NotFound from "@/pages/NotFound";
 export default function App() {
   return (
     <CartProvider>
+      <ScrollToTop />
       <Layout>
         <Routes>
           <Route path="/" element={<Landing />} />
