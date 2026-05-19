@@ -52,37 +52,65 @@ export default function Checkout() {
     if (!/^01[0-2,5]\d{8}$/.test(form.phone.trim())) return toast.error("رقم تليفون غير صحيح");
 
     setSubmitting(true);
-    const { data, error } = await supabase
+
+    // 1) Create / insert customer
+    const { data: customer, error: custErr } = await (supabase as any)
+      .from("customers")
+      .insert({
+        name: form.name.trim(),
+        phone: form.phone.trim(),
+        address: form.address.trim(),
+        governorate: selectedGov.name,
+      })
+      .select("id")
+      .single();
+
+    if (custErr || !customer) {
+      setSubmitting(false);
+      toast.error("حصلت مشكلة في حفظ بياناتك، حاولي تاني");
+      return;
+    }
+
+    // 2) Create order
+    const orderDetails = items
+      .map((i) => `${i.name} × ${i.qty}${i.shade ? ` (${i.shade})` : ""}${i.size ? ` [${i.size}]` : ""}`)
+      .join("\n");
+
+    const { data: order, error: orderErr } = await (supabase as any)
       .from("orders")
       .insert({
-        customer_name: form.name.trim(),
-        customer_phone: form.phone.trim(),
-        customer_address: form.address.trim(),
+        customer_id: customer.id,
         governorate_id: selectedGov.id,
-        governorate_name: selectedGov.name_ar,
-        items: items.map((i) => ({
-          product_id: i.product_id,
-          name: i.name,
-          price: i.price,
-          qty: i.qty,
-          shade: i.shade ?? null,
-          size: i.size ?? null,
-          image: i.image,
-        })),
-        subtotal,
+        total_amount: total,
         shipping_cost: shipping,
-        total,
+        status: "pending",
+        order_details: orderDetails,
         notes: form.notes.trim() || null,
       })
       .select("order_number")
       .single();
-    setSubmitting(false);
 
-    if (error || !data) {
+    if (orderErr || !order) {
+      setSubmitting(false);
       toast.error("حصلت مشكلة، حاولي تاني");
       return;
     }
-    setOrderNumber(data.order_number);
+
+    // 3) Insert order items (best-effort)
+    await (supabase as any).from("order_items").insert(
+      items.map((i) => ({
+        order_id: (order as any).id ?? undefined,
+        product_id: i.product_id,
+        quantity: i.qty,
+        price: i.price,
+        color: i.shade ?? null,
+        size: i.size ?? null,
+        product_details: i.name,
+      })),
+    );
+
+    setSubmitting(false);
+    setOrderNumber(Number(order.order_number));
     clear();
   };
 
