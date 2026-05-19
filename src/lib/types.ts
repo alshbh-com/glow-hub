@@ -70,10 +70,15 @@ function slugify(s: string): string {
 // into the shape the storefront expects.
 export function mapRowToProduct(row: any): Product {
   const images: string[] = [];
+  if (row?.image_url) images.push(row.image_url);
   if (Array.isArray(row?.product_images)) {
-    for (const im of row.product_images) if (im?.image_url) images.push(im.image_url);
+    const sorted = [...row.product_images].sort(
+      (a, b) => (a?.display_order ?? 0) - (b?.display_order ?? 0),
+    );
+    for (const im of sorted) {
+      if (im?.image_url && !images.includes(im.image_url)) images.push(im.image_url);
+    }
   }
-  if (row?.image_url && !images.includes(row.image_url)) images.unshift(row.image_url);
 
   const colors: string[] = Array.isArray(row?.color_options) ? row.color_options : [];
   const sizes: string[] = Array.isArray(row?.size_options) ? row.size_options : [];
