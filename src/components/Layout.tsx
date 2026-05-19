@@ -2,9 +2,10 @@ import { useEffect, useState, type ReactNode } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { ShoppingBag, Moon, Sun, Menu, X, Heart } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
+import WhatsAppButton from "./WhatsAppButton";
 
 export default function Layout({ children }: { children: ReactNode }) {
-  const [dark, setDark] = useState(() => document.documentElement.classList.contains("dark"));
+  const [dark, setDark] = useState(true);
   const [menuOpen, setMenuOpen] = useState(false);
   const { count } = useCart();
   const { pathname } = useLocation();
