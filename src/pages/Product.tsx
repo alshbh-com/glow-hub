@@ -28,9 +28,10 @@ export default function ProductPage() {
       .eq("is_active", true)
       .maybeSingle()
       .then(({ data }) => {
-        setProduct(data as unknown as Product);
-        if (data?.shades?.[0]) setShade((data.shades[0] as { name: string }).name);
-        if (data?.sizes?.[0]) setSize(data.sizes[0]);
+        const p = data as unknown as Product | null;
+        setProduct(p);
+        if (p?.shades?.[0]) setShade(p.shades[0].name);
+        if (p?.sizes?.[0]) setSize(p.sizes[0]);
         setLoading(false);
       });
   }, [id]);
