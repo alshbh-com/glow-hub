@@ -25,7 +25,7 @@ export default function Shop() {
     setLoading(true);
     let q = supabase
       .from("products")
-      .select("*")
+      .select("*, product_images(image_url, display_order)")
       .order("created_at", { ascending: false });
     if (slug && activeCat) q = q.eq("category_id", activeCat.id);
     q.then(({ data }) => {

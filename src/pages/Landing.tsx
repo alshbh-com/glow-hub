@@ -33,7 +33,7 @@ export default function Landing() {
       .then(({ data }) => data && setCategories((data as any[]).map(mapRowToCategory)));
     supabase
       .from("products")
-      .select("*")
+      .select("*, product_images(image_url, display_order)")
       .order("created_at", { ascending: false })
       .limit(8)
       .then(({ data }) => data && setProducts((data as any[]).map(mapRowToProduct)));
