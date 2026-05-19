@@ -151,7 +151,7 @@ export default function Checkout() {
               <div>
                 <label className="text-xs tracking-[0.2em] uppercase text-muted-foreground mb-2 block">المحافظة</label>
                 <select value={govId} onChange={(e) => setGovId(e.target.value)} className="w-full bg-input px-4 py-3 focus:outline-none focus:ring-1 focus:ring-accent">
-                  {govs.map((g) => <option key={g.id} value={g.id}>{g.name_ar} — شحن {g.shipping_cost} ج.م</option>)}
+                  {govs.map((g) => <option key={g.id} value={g.id}>{g.name} — شحن {g.shipping_cost} ج.م</option>)}
                 </select>
               </div>
               <Field label="العنوان بالتفصيل" value={form.address} onChange={(v) => setForm({ ...form, address: v })} multiline />
