@@ -41,15 +41,46 @@ export default function TrackOrder() {
   }, [orderNumber]);
 
   const search = async (num: string) => {
-    if (!num.trim()) return toast.error("اكتبي رقم الأوردر");
+    const raw = num.trim().replace(/^GLW-?/i, "").replace(/^TRK-?/i, "").replace(/^0+/, "");
+    const asNum = Number(raw);
+    if (!raw || Number.isNaN(asNum)) return toast.error("اكتبي رقم الأوردر");
     setLoading(true);
     setSearched(true);
-    const { data } = await supabase
+    const { data } = await (supabase as any)
       .from("orders")
-      .select("id, order_number, customer_name, governorate_name, items, subtotal, shipping_cost, total, status, created_at")
-      .eq("order_number", num.trim())
+      .select("id, order_number, status, created_at, total_amount, shipping_cost, order_details, customers ( name ), governorates ( name ), order_items ( quantity, price, product_details, color, size )")
+      .eq("order_number", asNum)
       .maybeSingle();
-    setOrder(data as unknown as Order);
+
+    if (!data) {
+      setOrder(null);
+      setLoading(false);
+      return;
+    }
+
+    const items = ((data.order_items as any[]) ?? []).map((it) => ({
+      name: it.product_details ?? "منتج",
+      price: Number(it.price ?? 0),
+      qty: Number(it.quantity ?? 1),
+      shade: it.color ?? null,
+      size: it.size ?? null,
+    }));
+    const shipping_cost = Number(data.shipping_cost ?? 0);
+    const total = Number(data.total_amount ?? 0);
+    const subtotal = Math.max(0, total - shipping_cost);
+
+    setOrder({
+      id: data.id,
+      order_number: String(data.order_number),
+      customer_name: data.customers?.name ?? "—",
+      governorate_name: data.governorates?.name ?? "—",
+      items,
+      subtotal,
+      shipping_cost,
+      total,
+      status: mapStatus(data.status),
+      created_at: data.created_at,
+    });
     setLoading(false);
   };
 
