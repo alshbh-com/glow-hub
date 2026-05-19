@@ -150,9 +150,19 @@ export default function Checkout() {
               <Field label="رقم التليفون" value={form.phone} onChange={(v) => setForm({ ...form, phone: v })} placeholder="01xxxxxxxxx" type="tel" />
               <div>
                 <label className="text-xs tracking-[0.2em] uppercase text-muted-foreground mb-2 block">المحافظة</label>
-                <select value={govId} onChange={(e) => setGovId(e.target.value)} className="w-full bg-input px-4 py-3 focus:outline-none focus:ring-1 focus:ring-accent">
-                  {govs.map((g) => <option key={g.id} value={g.id}>{g.name} — شحن {g.shipping_cost} ج.م</option>)}
+                <select value={govId} onChange={(e) => setGovId(e.target.value)} className="w-full bg-input text-foreground px-4 py-3 focus:outline-none focus:ring-1 focus:ring-accent">
+                  {govs.length === 0 && <option value="">لا توجد محافظات متاحة</option>}
+                  {govs.map((g) => (
+                    <option key={g.id} value={g.id} className="bg-background text-foreground">
+                      {g.name} — شحن {g.shipping_cost} ج.م
+                    </option>
+                  ))}
                 </select>
+                {selectedGov && (
+                  <p className="text-xs text-muted-foreground mt-2">
+                    المحافظة المختارة: <span className="text-accent">{selectedGov.name}</span> · الشحن {selectedGov.shipping_cost} ج.م
+                  </p>
+                )}
               </div>
               <Field label="العنوان بالتفصيل" value={form.address} onChange={(v) => setForm({ ...form, address: v })} multiline />
               <Field label="ملاحظات (اختياري)" value={form.notes} onChange={(v) => setForm({ ...form, notes: v })} multiline />
