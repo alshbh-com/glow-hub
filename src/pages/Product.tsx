@@ -5,7 +5,7 @@ import { Minus, Plus, ShoppingBag, ChevronLeft, Truck, ShieldCheck, RotateCcw } 
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useCart } from "@/contexts/CartContext";
-import type { Product } from "@/lib/types";
+import { mapRowToProduct, type Product } from "@/lib/types";
 
 export default function ProductPage() {
   const { id } = useParams();
@@ -25,10 +25,9 @@ export default function ProductPage() {
       .from("products")
       .select("*")
       .eq("id", id)
-      .eq("is_active", true)
       .maybeSingle()
       .then(({ data }) => {
-        const p = data as unknown as Product | null;
+        const p = data ? mapRowToProduct(data) : null;
         setProduct(p);
         if (p?.shades?.[0]) setShade(p.shades[0].name);
         if (p?.sizes?.[0]) setSize(p.sizes[0]);
