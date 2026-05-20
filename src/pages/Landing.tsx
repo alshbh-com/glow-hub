@@ -295,8 +295,8 @@ export default function Landing() {
             </div>
             <div>
               <p className="text-xs tracking-[0.3em] uppercase mb-4 text-accent">تواصلي معنا</p>
-              <p className="text-sm text-muted-foreground mb-2">واتساب: +20 103 080 6772</p>
-              <a href="https://wa.me/201030806772" target="_blank" rel="noopener noreferrer" className="text-sm text-accent hover:underline">دردشة على واتساب →</a>
+              <p className="text-sm text-muted-foreground mb-2">واتساب: +20 151 570 3849</p>
+              <a href="https://wa.me/201515703849" target="_blank" rel="noopener noreferrer" className="text-sm text-accent hover:underline">دردشة على واتساب →</a>
             </div>
           </div>
           <div className="pt-8 border-t border-border text-center text-xs text-muted-foreground tracking-wider">
