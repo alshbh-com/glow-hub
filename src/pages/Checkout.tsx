@@ -81,7 +81,7 @@ export default function Checkout() {
       .insert({
         customer_id: customer.id,
         governorate_id: selectedGov.id,
-        total_amount: total,
+        total_amount: subtotal + shipping,
         shipping_cost: shipping,
         status: "pending",
         order_details: orderDetails,
