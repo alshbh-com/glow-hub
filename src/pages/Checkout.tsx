@@ -33,8 +33,8 @@ export default function Checkout() {
   }, []);
 
   const selectedGov = govs.find((g) => g.id === govId);
-  const shipping = Number(selectedGov?.shipping_cost ?? 0);
-  const total = subtotal + shipping;
+  const shipping = Number(selectedGov?.shipping_cost ?? 0); // system-only
+  const total = subtotal; // shipping is free for customer
 
   if (items.length === 0 && !orderNumber) {
     return (
@@ -154,13 +154,13 @@ export default function Checkout() {
                   {govs.length === 0 && <option value="">لا توجد محافظات متاحة</option>}
                   {govs.map((g) => (
                     <option key={g.id} value={g.id} className="bg-background text-foreground">
-                      {g.name} — شحن {g.shipping_cost} ج.م
+                      {g.name}
                     </option>
                   ))}
                 </select>
                 {selectedGov && (
                   <p className="text-xs text-muted-foreground mt-2">
-                    المحافظة المختارة: <span className="text-accent">{selectedGov.name}</span> · الشحن {selectedGov.shipping_cost} ج.م
+                    المحافظة المختارة: <span className="text-accent">{selectedGov.name}</span> · الشحن <span className="text-accent">مجاني</span>
                   </p>
                 )}
               </div>
@@ -192,7 +192,7 @@ export default function Checkout() {
             </div>
             <div className="space-y-2 py-4 border-y border-border text-sm">
               <div className="flex justify-between"><span className="text-muted-foreground">المجموع الفرعي</span><span>{subtotal} ج.م</span></div>
-              <div className="flex justify-between"><span className="text-muted-foreground">الشحن</span><span>{shipping} ج.م</span></div>
+              <div className="flex justify-between"><span className="text-muted-foreground">الشحن</span><span className="text-accent">مجاني</span></div>
             </div>
             <div className="flex justify-between items-baseline py-4">
               <span className="text-xs tracking-widest uppercase">الإجمالي</span>

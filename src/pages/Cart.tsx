@@ -64,7 +64,7 @@ export default function Cart() {
             <h2 className="font-display text-2xl mb-6">ملخص الطلب</h2>
             <div className="space-y-3 pb-6 border-b border-border text-sm">
               <div className="flex justify-between"><span className="text-muted-foreground">المجموع الفرعي</span><span>{subtotal} ج.م</span></div>
-              <div className="flex justify-between"><span className="text-muted-foreground">الشحن</span><span className="text-xs">يُحسب عند الدفع</span></div>
+              <div className="flex justify-between"><span className="text-muted-foreground">الشحن</span><span className="text-accent">مجاني</span></div>
             </div>
             <div className="flex justify-between items-baseline py-6">
               <span className="text-xs tracking-widest uppercase">الإجمالي</span>
