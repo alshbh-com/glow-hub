@@ -82,7 +82,7 @@ export default function Checkout() {
         customer_id: customer.id,
         governorate_id: selectedGov.id,
         total_amount: total,
-        shipping_cost: shipping,
+        shipping_cost: 0,
         status: "pending",
         order_details: orderDetails,
         notes: form.notes.trim() || null,
