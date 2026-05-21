@@ -33,8 +33,8 @@ export default function Checkout() {
   }, []);
 
   const selectedGov = govs.find((g) => g.id === govId);
-  const shipping = Number(selectedGov?.shipping_cost ?? 0);
-  const total = subtotal + shipping;
+  const shipping = Number(selectedGov?.shipping_cost ?? 0); // system-only
+  const total = subtotal; // shipping is free for customer
 
   if (items.length === 0 && !orderNumber) {
     return (
