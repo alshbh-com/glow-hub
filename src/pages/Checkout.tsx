@@ -72,9 +72,12 @@ export default function Checkout() {
     }
 
     // 2) Create order
-    const orderDetails = items
+    const itemsText = items
       .map((i) => `${i.name} × ${i.qty}${i.shade ? ` (${i.shade})` : ""}${i.size ? ` [${i.size}]` : ""}`)
       .join("\n");
+    const orderDetails = `${itemsText}\n----------------\nالمنتجات: ${subtotal} ج.م\nالشحن (${selectedGov.name}): ${shipping} ج.م\nالإجمالي: ${subtotal + shipping} ج.م`;
+    const shippingNote = `سعر الشحن: ${shipping} ج.م — ${selectedGov.name}`;
+    const finalNotes = form.notes.trim() ? `${shippingNote}\n${form.notes.trim()}` : shippingNote;
 
     const { data: order, error: orderErr } = await (supabase as any)
       .from("orders")
@@ -85,7 +88,7 @@ export default function Checkout() {
         shipping_cost: shipping,
         status: "pending",
         order_details: orderDetails,
-        notes: form.notes.trim() || null,
+        notes: finalNotes,
       })
       .select("order_number")
       .single();
