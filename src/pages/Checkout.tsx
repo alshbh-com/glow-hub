@@ -154,13 +154,13 @@ export default function Checkout() {
                   {govs.length === 0 && <option value="">لا توجد محافظات متاحة</option>}
                   {govs.map((g) => (
                     <option key={g.id} value={g.id} className="bg-background text-foreground">
-                      {g.name} — شحن {g.shipping_cost} ج.م
+                      {g.name}
                     </option>
                   ))}
                 </select>
                 {selectedGov && (
                   <p className="text-xs text-muted-foreground mt-2">
-                    المحافظة المختارة: <span className="text-accent">{selectedGov.name}</span> · الشحن {selectedGov.shipping_cost} ج.م
+                    المحافظة المختارة: <span className="text-accent">{selectedGov.name}</span> · الشحن <span className="text-accent">مجاني</span>
                   </p>
                 )}
               </div>
