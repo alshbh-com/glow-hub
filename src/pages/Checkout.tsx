@@ -192,7 +192,7 @@ export default function Checkout() {
             </div>
             <div className="space-y-2 py-4 border-y border-border text-sm">
               <div className="flex justify-between"><span className="text-muted-foreground">المجموع الفرعي</span><span>{subtotal} ج.م</span></div>
-              <div className="flex justify-between"><span className="text-muted-foreground">الشحن</span><span>{shipping} ج.م</span></div>
+              <div className="flex justify-between"><span className="text-muted-foreground">الشحن</span><span className="text-accent">مجاني</span></div>
             </div>
             <div className="flex justify-between items-baseline py-4">
               <span className="text-xs tracking-widest uppercase">الإجمالي</span>
